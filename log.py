@@ -15,7 +15,7 @@ requests_log.setLevel(logging.WARNING)
 
 def setup_logging(logfile, loglevel=logging.INFO):
     # make sure path exists.
-    filepath = os.path.dirname
+    filepath = os.path.dirname(logfile)
     if filepath and not os.path.exists(filepath):
         os.makedirs(filepath)
 
