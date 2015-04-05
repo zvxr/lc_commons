@@ -1,12 +1,18 @@
 
 
 CREATE TABLE rawLoanDates(
-    asOfDate INTEGER PRIMARY KEY
+    asOfDate DATETIME PRIMARY KEY
+);
+
+
+CREATE TABLE loansFundedAsOfDate(
+    asOfDate DATETIME REFERENCES rawLoanDates(asOfDate),
+    fundedAmount REAL,
+    id INTEGER REFERENCES rawLoans(id)
 );
 
 
 CREATE TABLE rawLoans(
-    asOfDate INTEGER REFERENCES rawLoanDates(asOfDate),
     acceptD INTEGER,
     accNowDelinq INTEGER,
     accOpenPast24Mths INTEGER,
@@ -30,10 +36,9 @@ CREATE TABLE rawLoans(
     expDefaultRate REAL,
     ficoRangeHigh INTEGER,
     ficoRangeLow INTEGER,
-    fundedAmount REAL,
     grade CHARACTER(1),
     homeOwnership VARCHAR(16),
-    id INTEGER,
+    id INTEGER PRIMARY KEY,
     ilsExpD INTEGER,
     initialListStatus CHARACTER(1),
     inqLast6Mths INTEGER,
@@ -93,4 +98,3 @@ CREATE TABLE rawLoans(
     totCurBal INTEGER,
     totHiCredLim INTEGER
 );
-

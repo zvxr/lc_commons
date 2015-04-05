@@ -25,47 +25,58 @@ def execute():
     # Logging
     logger = logging.getLogger(__name__)
 
-    # Get the loans
+    # Get the loans and loan information.
     response_json = get_listed_loans()
     asOfDate = response_json['asOfDate']
-    loans = [Loan(asOfDate, loan) for loan in response_json['loans']]
     asOfDateEpoch = _get_epoch(asOfDate)
+    loans = [Loan(asOfDate, loan) for loan in response_json['loans']]
 
     # Get the connection.
     conn = sqlite3.connect(config.database)
     cursor = conn.cursor()
 
     # See if we have already recorded this information.
-    sql = """SELECT COUNT(*) FROM rawLoanDates WHERE asOfDate = (?)"""
+    sql = """
+        SELECT COUNT(*)
+          FROM rawLoanDates
+         WHERE asOfDate = (?)
+    """
     params = (asOfDateEpoch,)
     cursor.execute(sql, params)
     count = cursor.fetchone()[0]
 
     if count == 0:
-        # Add the asOfDate if it doesn't exist.
-        sql = """INSERT OR IGNORE INTO rawLoanDates(asOfDate) VALUES (?)"""
-        params = (_get_epoch(asOfDate),)
+        # Add raw loan date.
+        sql = """ INSERT OR IGNORE INTO rawLoanDates VALUES(?)"""
+        params = (asOfDate,)
         cursor.execute(sql, params)
 
-        # Add all the loans.
+        # Add all the raw loans, if necessary.
         sql = """
-        INSERT INTO rawLoans VALUES(
-            ?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?,?,?,?,?,
-            ?,?,?,?,?,?
-        )
+            INSERT OR IGNORE INTO rawLoans VALUES(
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?,?,?,?,?,?,?,
+                ?,?,?,?
+            )
         """
-        params = [loan.get_tuple() for loan in loans]
+        params = map(lambda loan: loan.get_raw_loans_tuple(), loans)
+        cursor.executemany(sql, params)
+
+        # Add loan funding.
+        sql = """
+            INSERT INTO loansFundedAsOfDate VALUES(?,?,?)
+        """
+        params = map(lambda loan: loan.get_funded_tuple(), loans)
         cursor.executemany(sql, params)
 
         conn.commit()
-        logger.info("%s added." % asOfDateEpoch)
+        logger.info("%s added %s loans." % (asOfDateEpoch, len(loans)))
     else:
         logger.info("%s already exists." % asOfDateEpoch)
 
@@ -77,4 +88,3 @@ if __name__ == "__main__":
     while True:
         execute()
         time.sleep(60)
-

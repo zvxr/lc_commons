@@ -22,8 +22,6 @@ def _get_str(value):
     return str(value) if value else None
 
 
-
-
 # Class definitions
 class Loan(object):
     """
@@ -123,25 +121,39 @@ class Loan(object):
         ('totHiCredLim', _get_int)
     ])
 
-    def __init__(self, asOfDate, row):
-        """Initialized with `asOfDate` (date string) and `row` -- a JSON 
-        dictionary that represents a response.
+    def __init__(self, asOfDate, loan):
+        """Initialized with date string asOfDate, and loan, a JSON dictionary
+        containing loan data as part of the API response.
         """
         self.values = dict(asOfDate=asOfDate)
         for key, type in Loan.attributes.iteritems():
             if key == 'asOfDate':
                 continue
 
-            self.values[key] = type(row[key])
+            self.values[key] = type(loan[key])
 
-    def __iter__(self):
+    def iteritems(self):
         for key in Loan.attributes:
-            yield self.values[key]
+            yield key, self.values[key]
 
     @property
     def asOfDate(self):
         return self.values['asOfDate']
 
-    def get_tuple(self):
-        return tuple([v for v in self])
+    @property
+    def fundedAmount(self):
+        return self.values['fundedAmount']
 
+    @property
+    def id(self):
+        return self.values['id']
+
+    def get_raw_loans_tuple(self):
+        return tuple([
+            v for k, v in self.iteritems() if k not in (
+                'asOfDate', 'fundedAmount'
+            )
+        ])
+
+    def get_funded_tuple(self):
+        return (self.asOfDate, self.fundedAmount, self.id)
