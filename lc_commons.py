@@ -86,5 +86,9 @@ if __name__ == "__main__":
     log.setup_logging(config.log_path)
 
     while True:
+        run_time = time.time()
         execute()
-        time.sleep(60)
+        remaining_time = config.polling_interval - (time.time() - run_time)
+
+        if remaining_time > 0:
+            time.sleep(remaining_time)
