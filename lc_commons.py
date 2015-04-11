@@ -20,13 +20,20 @@ def get_listed_loans(version="v1", show_all=True):
 
     if response.status_code == 200:
         return response.json()
+    else:
+        print response.text
+        raise
 
 def execute():
     # Logging
     logger = logging.getLogger(__name__)
 
     # Get the loans and loan information.
-    response_json = get_listed_loans()
+    try:
+        response_json = get_listed_loans()
+    except:
+        return
+
     asOfDate = response_json['asOfDate']
     asOfDateEpoch = _get_epoch(asOfDate)
     loans = [Loan(asOfDate, loan) for loan in response_json['loans']]
