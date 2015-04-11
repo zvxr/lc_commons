@@ -138,15 +138,15 @@ class Loan(object):
 
     @property
     def asOfDate(self):
-        return self.values['asOfDate']
+        return self.values.get('asOfDate')
 
     @property
     def fundedAmount(self):
-        return self.values['fundedAmount']
+        return self.values.get('fundedAmount')
 
     @property
     def id(self):
-        return self.values['id']
+        return self.values.get('id')
 
     def get_raw_loans_tuple(self):
         return tuple([
