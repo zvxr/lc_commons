@@ -28,7 +28,7 @@ class SqliteDatabase(object):
         try:
             cursor = self.database.cursor()
 
-            if cursor:
+            if params:
                 cursor.execute(sql, params)
             else:
                 cursor.execute(sql)
