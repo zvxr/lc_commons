@@ -44,7 +44,8 @@ def execute():
     loans = [Loan(asOfDate, loan) for loan in response_json['loans']]
 
     # Get the connection.
-    database = SqliteDatabase.Instance()
+    ##database = SqliteDatabase.Instance()
+    database = SqliteDatabase()
 
     # See if we have already recorded this information.
     sql = """
