@@ -5,7 +5,7 @@ import sqlite3
 from util import Singleton
 
 
-@Singleton
+#@Singleton
 class SqliteDatabase(object):
     """Manages a single sqlite database connection.
     Call using `Instance`.
