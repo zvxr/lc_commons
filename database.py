@@ -2,16 +2,19 @@
 import config
 import sqlite3
 
-from util import Singleton
 
-
-#@Singleton
 class SqliteDatabase(object):
-    """Manages a single sqlite database connection.
-    Call using `Instance`.
+    """Manages a sqlite database connection.
+    May be used with the with statement.
     """
     def __init__(self):
         self._database = None
+
+    def __enter__(self):
+        pass  # lazy-load
+
+    def __exit__(self, type, value, tb):
+        self.close()
 
     @property
     def database(self):
@@ -19,15 +22,19 @@ class SqliteDatabase(object):
             self._database = sqlite3.connect(config.database)
         return self._database
 
+    def close(self):
+        if self._database:
+            self._database.close()
+            self._database = None
+
     def execute(self, sql, params=None, results=None):
         """Wraps `cursor.execute(sql, params)`, where `params` is optional.
         Will generate a cursor for the duration of call. An optional `results`
         parameter may be set to "fetchone" or "fetchall" to return results as
         part of call.
         """
+        cursor = self.database.cursor()
         try:
-            cursor = self.database.cursor()
-
             if params:
                 cursor.execute(sql, params)
             else:
@@ -48,16 +55,11 @@ class SqliteDatabase(object):
         """Wraps `cursor.executemany(sql, params)`.
         Will generate a cursor for the duration of call.
         """
+        cursor = self.database.cursor()
         try:
-            cursor = self.database.cursor()
             cursor.executemany(sql, params)
             self.database.commit()
         except Exception as e:
             self.database.rollback()
             self.close()
             raise e
-
-    def close(self):
-        if self._database:
-            self._database.close()
-            self._database = None
