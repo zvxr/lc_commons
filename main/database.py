@@ -47,7 +47,7 @@ class SqliteDatabase(object):
             raise e
 
         if results == "fetchone":
-            return  cursor.fetchone()
+            return cursor.fetchone()
         elif results == "fetchall":
             return cursor.fetchall()
 
