@@ -13,6 +13,7 @@ stderr_logger = logging.getLogger("stderr")
 requests_log = logging.getLogger("requests")
 requests_log.setLevel(logging.WARNING)
 
+
 def setup_logging(logfile, loglevel=logging.INFO):
     # make sure path exists.
     filepath = os.path.dirname(logfile)
@@ -25,11 +26,12 @@ def setup_logging(logfile, loglevel=logging.INFO):
     sys.stderr = StdErrWrapper()
     sys.stdout = StdOutWrapper()
 
+
 class StdOutWrapper(object):
     def write(self, s):
         stdout_logger.info(s.strip())
 
+
 class StdErrWrapper(object):
     def write(self, s):
         stderr_logger.error(s.strip())
-

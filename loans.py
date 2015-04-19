@@ -9,13 +9,16 @@ def _get_epoch(date_string):
     if date_string:
         return int(time.mktime(dateutil.parser.parse(date_string).timetuple()))
 
+
 def _get_float(value):
     """Casts value to float. Nonetype is preserved."""
     return float(value) if value else None
 
+
 def _get_int(value):
     """Casts value to integer. Nonetype is preserved."""
     return int(value) if value else None
+
 
 def _get_str(value):
     """Casts value to string. Nonetype is preserved."""
@@ -33,7 +36,6 @@ class Loan(object):
     # Keys are attribute names.
     # Values are the type/method that is applied when instantiating.
     attributes = OrderedDict([
-        ('asOfDate', _get_epoch),
         ('acceptD', _get_epoch),
         ('accNowDelinq', _get_int),
         ('accOpenPast24Mths', _get_int),
@@ -41,6 +43,7 @@ class Loan(object):
         ('addrZip', _get_str),
         ('annualInc', _get_float),
         ('avgCurBal', _get_int),
+        ('asOfDate', _get_epoch),
         ('bcOpenToBuy', _get_int),
         ('bcUtil', _get_float),
         ('chargeoffWithin12Mths', _get_int),
@@ -125,8 +128,10 @@ class Loan(object):
         """Initialized with date string asOfDate, and loan, a JSON dictionary
         containing loan data as part of the API response.
         """
-        self.values = dict(asOfDate=asOfDate)
+        self.values = {'asOfDate': asOfDate}
+
         for key, type in Loan.attributes.iteritems():
+
             if key == 'asOfDate':
                 continue
 
