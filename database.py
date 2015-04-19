@@ -11,7 +11,7 @@ class SqliteDatabase(object):
         self._database = None
 
     def __enter__(self):
-        pass  # lazy-load
+        return self  # lazy-load
 
     def __exit__(self, type, value, tb):
         self.close()
