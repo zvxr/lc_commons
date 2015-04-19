@@ -19,7 +19,7 @@ def _get_int(value):
 
 def _get_str(value):
     """Casts value to string. Nonetype is preserved."""
-    return str(value) if value else None
+    return unicode(value) if value else None
 
 
 # Class definitions
