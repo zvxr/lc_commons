@@ -50,10 +50,10 @@ class TestSqliteDatabaseClass(unittest.TestCase):
         # Test no params or results first.
         sql = "select 1"
         results = db.execute(sql)
-        sqlite_connect_mock.assert_called()
-        connection_mock.cursor.assert_called()
+        self.assertTrue(sqlite_connect_mock.called)
+        self.assertTrue(connection_mock.cursor.called)
         cursor_mock.execute.assert_called_with(sql)
-        connection_mock.commit.assert_called()
+        self.assertTrue(connection_mock.commit.called)
         self.assertFalse(connection_mock.rollback.called)
         self.assertFalse(cursor_mock.fetchone.called)
         self.assertFalse(cursor_mock.fetchall.called)
@@ -64,10 +64,10 @@ class TestSqliteDatabaseClass(unittest.TestCase):
         # Test with params.
         params = {"name": "value"}
         results = db.execute(sql, params)
-        sqlite_connect_mock.assert_called()
-        connection_mock.cursor.assert_called()
+        self.assertTrue(sqlite_connect_mock.called)
+        self.assertTrue(connection_mock.cursor.called)
         cursor_mock.execute.assert_called_with(sql, params)
-        connection_mock.commit.assert_called()
+        self.assertTrue(connection_mock.commit.called)
         self.assertFalse(connection_mock.rollback.called)
         self.assertFalse(cursor_mock.fetchone.called)
         self.assertFalse(cursor_mock.fetchall.called)
@@ -79,12 +79,12 @@ class TestSqliteDatabaseClass(unittest.TestCase):
         results_mock = mock.Mock()
         cursor_mock.fetchone.return_value = results_mock
         results = db.execute(sql, params, results="fetchone")
-        sqlite_connect_mock.assert_called()
-        connection_mock.cursor.assert_called()
+        self.assertTrue(sqlite_connect_mock.called)
+        self.assertTrue(connection_mock.cursor.called)
         cursor_mock.execute.assert_called_with(sql, params)
-        connection_mock.commit.assert_called()
+        self.assertTrue(connection_mock.commit.called)
         self.assertFalse(connection_mock.rollback.called)
-        cursor_mock.fetchone.assert_called()
+        self.assertTrue(cursor_mock.fetchone.called)
         self.assertFalse(cursor_mock.fetchall.called)
         connection_mock.reset_mock()
         cursor_mock.reset_mock()
@@ -94,19 +94,22 @@ class TestSqliteDatabaseClass(unittest.TestCase):
         results_mock = mock.Mock()
         cursor_mock.fetchall.return_value = results_mock
         results = db.execute(sql, params, results="fetchall")
-        sqlite_connect_mock.assert_called()
-        connection_mock.cursor.assert_called()
+        self.assertTrue(sqlite_connect_mock.called)
+        self.assertTrue(connection_mock.cursor.called)
         cursor_mock.execute.assert_called_with(sql, params)
-        connection_mock.commit.assert_called()
+        self.assertTrue(connection_mock.commit.called)
         self.assertFalse(connection_mock.rollback.called)
         self.assertFalse(cursor_mock.fetchone.called)
-        cursor_mock.fetchall.assert_called()
+        self.assertTrue(cursor_mock.fetchall.called)
         connection_mock.reset_mock()
         cursor_mock.reset_mock()
         self.assertEqual(results, results_mock)
 
         # Test an exception.
         cursor_mock.execute.side_effect = Exception("Meow!")
+        self.assertRaises(Exception, db.execute, sql, params)
+        self.assertTrue(cursor_mock.execute.called)
+        self.assertTrue(connection_mock.rollback.called)
 
 
 if __name__ == "__main__":
