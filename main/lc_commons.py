@@ -7,7 +7,6 @@ import logging
 import time
 
 from loans import Loan
-from loans import _get_epoch
 
 
 def execute():
@@ -39,6 +38,10 @@ def execute():
 
 
 if __name__ == "__main__":
+    """When executing as a script, will run indefinitely. API requests and
+    subsequent writes to database are done with a minimum wait of seconds
+    defined through config.POLLING_INTERVAL.
+    """
     log.setup_logging(config.LOG_PATH)
 
     while True:

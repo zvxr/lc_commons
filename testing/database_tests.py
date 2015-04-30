@@ -60,15 +60,21 @@ class TestDatabaseMethods(unittest.TestCase):
         db_conn_mock = mock.Mock()
 
         # Test where already has been recorded.
-        db_conn_mock.execute.return_value = 1
-
-        ###
+        db_conn_mock.execute.return_value = [1]
         resp = main.database.has_been_recorded(date_string_mock, db_conn_mock)
         self.assertTrue(db_conn_mock.execute.called)
         self.assertEqual(len(db_conn_mock.execute.call_args_list), 1)
         call_args = db_conn_mock.execute.call_args_list[0][0]
+        call_kwargs = db_conn_mock.execute.call_args_list[0][1]
         self.assertIsInstance(call_args[0], str)
         self.assertEqual(call_args[1], (date_string_mock,))
+        self.assertEqual(call_kwargs, {'results': "fetchone"})
+        self.assertEqual(resp, True)
+
+        # Test where has not been recorded.
+        db_conn_mock.execute.return_value = [0]
+        resp = main.database.has_been_recorded(date_string_mock, db_conn_mock)
+        self.assertEqual(resp, False)
 
 
 class TestSqliteDatabaseClass(unittest.TestCase):
@@ -173,8 +179,13 @@ class TestSqliteDatabaseClass(unittest.TestCase):
         # Test an exception.
         cursor_mock.execute.side_effect = Exception("Meow!")
         self.assertRaises(Exception, db.execute, sql, params)
-        self.assertTrue(cursor_mock.execute.called)
-        self.assertTrue(connection_mock.rollback.called)
+        sqlite_connect_mock.assert_called()
+        connection_mock.cursor.assert_called()
+        cursor_mock.execute.assert_called_with(sql, params)
+        self.assertFalse(connection_mock.commit.called)
+        connection_mock.rollback.assert_called()
+        self.assertFalse(cursor_mock.fetchone.called)
+        self.assertFalse(cursor_mock.fetchall.called)
 
 
 if __name__ == "__main__":
