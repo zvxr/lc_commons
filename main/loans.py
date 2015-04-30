@@ -27,9 +27,9 @@ def _get_str(value):
 
 # Class definitions
 class Loan(object):
-    """
-    Loan instances are meant to reflect an individual loan.
-    It acts as a sanitation and transportation of LC API response data to database.
+    """Loan instances are meant to reflect an individual loan.
+    It acts as a sanitation and transportation of LC API response data to
+    database.
     """
     # Class attribute `attributes` is defined as an ordered dict.
     # This is meant to provide the blueprint for operations on Loan instances.

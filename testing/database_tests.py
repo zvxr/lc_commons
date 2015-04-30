@@ -5,9 +5,74 @@ import mock
 import unittest
 
 
-class TestSqliteDatabaseClass(unittest.TestCase):
-    """Unit tests for Database class.
+class TestDatabaseMethods(unittest.TestCase):
+    """Unit tests for database module methods.
+    These tests will not actually compare/validate SQL statements, only the
+    parameters passed.
     """
+
+    def setUp(self):
+        pass
+
+    def test_add_loans_funded_as_of_date(self):
+        loan_mock = mock.Mock()
+        loan_tuple_mock = mock.Mock()
+        loan_mock.get_funded_tuple.return_value = loan_tuple_mock
+        loans_mock = [loan_mock]
+        db_conn_mock = mock.Mock()
+
+        main.database.add_loans_funded_as_of_date(loans_mock, db_conn_mock)
+        loan_mock.get_funded_tuple.assert_called_with()
+        self.assertTrue(db_conn_mock.executemany.called)
+        self.assertEqual(len(db_conn_mock.executemany.call_args_list), 1)
+        call_args = db_conn_mock.executemany.call_args_list[0][0]
+        self.assertIsInstance(call_args[0], str)
+        self.assertEqual(call_args[1], [loan_tuple_mock])
+
+    def test_add_raw_loan_dates(self):
+        date_string_mock = "2015-01-01T17:39:34.411-08:00"
+        db_conn_mock = mock.Mock()
+
+        main.database.add_raw_loan_dates(date_string_mock, db_conn_mock)
+        self.assertTrue(db_conn_mock.execute.called)
+        self.assertEqual(len(db_conn_mock.execute.call_args_list), 1)
+        call_args = db_conn_mock.execute.call_args_list[0][0]
+        self.assertIsInstance(call_args[0], str)
+        self.assertEqual(call_args[1], (date_string_mock,))
+
+    def test_add_raw_loans(self):
+        loan_mock = mock.Mock()
+        loan_tuple_mock = mock.Mock()
+        loan_mock.get_raw_loans_tuple.return_value = loan_tuple_mock
+        loans_mock = [loan_mock]
+        db_conn_mock = mock.Mock()
+
+        main.database.add_raw_loans(loans_mock, db_conn_mock)
+        loan_mock.get_raw_loans_tuple.assert_called_with()
+        self.assertTrue(db_conn_mock.executemany.called)
+        self.assertEqual(len(db_conn_mock.executemany.call_args_list), 1)
+        call_args = db_conn_mock.executemany.call_args_list[0][0]
+        self.assertIsInstance(call_args[0], str)
+        self.assertEqual(call_args[1], [loan_tuple_mock])
+
+    def test_has_been_recorded(self):
+        date_string_mock = "2015-01-01T17:39:34.411-08:00"
+        db_conn_mock = mock.Mock()
+
+        # Test where already has been recorded.
+        db_conn_mock.execute.return_value = 1
+
+        ###
+        resp = main.database.has_been_recorded(date_string_mock, db_conn_mock)
+        self.assertTrue(db_conn_mock.execute.called)
+        self.assertEqual(len(db_conn_mock.execute.call_args_list), 1)
+        call_args = db_conn_mock.execute.call_args_list[0][0]
+        self.assertIsInstance(call_args[0], str)
+        self.assertEqual(call_args[1], (date_string_mock,))
+
+
+class TestSqliteDatabaseClass(unittest.TestCase):
+    """Unit tests for Database class."""
 
     def setUp(self):
         pass
@@ -21,7 +86,7 @@ class TestSqliteDatabaseClass(unittest.TestCase):
         self.assertEqual(db._database, None)
         db_conn = db.database
         self.assertEqual(db_conn, connection_mock)
-        sqlite_connect_mock.assert_called_with(config.database)
+        sqlite_connect_mock.assert_called_with(config.DATABASE)
 
     @mock.patch('main.database.SqliteDatabase.close')
     def test_with_statement(self, db_close_mock):

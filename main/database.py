@@ -2,6 +2,51 @@
 import config
 import sqlite3
 
+"""Inclues database connection class, and methods for interacting with database.
+"""
+
+def add_loans_funded_as_of_date(loans, db_conn):
+    sql = """
+        INSERT INTO loansFundedAsOfDate VALUES(?,?,?)
+    """
+    params = map(lambda loan: loan.get_funded_tuple(), loans)
+    db_conn.executemany(sql, params)
+
+
+def add_raw_loan_dates(date_string, db_conn):
+    sql = """ INSERT OR IGNORE INTO rawLoanDates VALUES(?)"""
+    params = (date_string,)
+    db_conn.execute(sql, params)
+
+
+def add_raw_loans(loans, db_conn):
+    sql = """
+        INSERT OR IGNORE INTO rawLoans VALUES(
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?,?,?,?,?,?,?,
+            ?,?,?,?
+        )
+    """
+    params = map(lambda loan: loan.get_raw_loans_tuple(), loans)
+    db_conn.executemany(sql, params)
+
+
+def has_been_recorded(date_string, db_conn):
+    """Return True if the epoch passed has been recorded already."""
+    sql = """
+        SELECT COUNT(*)
+          FROM rawLoanDates
+         WHERE asOfDate = (?)
+    """
+    params = (date_string,)
+    return (db_conn.execute(sql, params, results='fetchone')[0] > 0)
+
 
 class SqliteDatabase(object):
     """Manages a sqlite database connection.
@@ -19,7 +64,7 @@ class SqliteDatabase(object):
     @property
     def database(self):
         if not self._database:
-            self._database = sqlite3.connect(config.database)
+            self._database = sqlite3.connect(config.DATABASE)
         return self._database
 
     def close(self):
