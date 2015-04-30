@@ -19,8 +19,11 @@ git config --global user.name $USERNAME
 cd lc_commons
 virtualenv venv
 source venv/bin/activate
+pip install mock
 pip install requests==2.5.3
 pip install python-dateutil
+## add to venv/bin/activate:
+## export PYTHONPATH="/path/to/lc_commons"
 
 # make database.
 sqlite3 lc_commons.db < assets/db_schema.sql

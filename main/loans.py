@@ -3,7 +3,9 @@ import time
 
 from collections import OrderedDict
 
-# Module methods
+"""Includes loan entity class, and methods for validating and casting variables.
+"""
+
 def _get_epoch(date_string):
     """Casts value (datestring) to unix timestamp. Nonetype is preserved."""
     if date_string:
@@ -25,11 +27,10 @@ def _get_str(value):
     return unicode(value) if value else None
 
 
-# Class definitions
 class Loan(object):
-    """
-    Loan instances are meant to reflect an individual loan.
-    It acts as a sanitation and transportation of LC API response data to database.
+    """Loan instances are meant to reflect an individual loan.
+    It acts as a sanitation and transportation of LC API response data to
+    database.
     """
     # Class attribute `attributes` is defined as an ordered dict.
     # This is meant to provide the blueprint for operations on Loan instances.
