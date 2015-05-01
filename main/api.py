@@ -1,6 +1,6 @@
 
 import config
-import logging
+import log
 import requests
 
 """Includes methods for interacting with Lending Club API.
@@ -12,7 +12,7 @@ def get_listed_loans(show_all=True):
     Logs error and returns NoneType if response is not 200.
     """
     # Logging.
-    logger = logging.getLogger(__name__)
+    logger = log.requests_log
 
     # Prepare and make request.
     url = config.API_URL + config.API_LOANS_URI
@@ -22,7 +22,7 @@ def get_listed_loans(show_all=True):
     }
     params = {'showAll': show_all}
     response = requests.get(url, headers=headers, params=params)
-
+    import pdb; pdb.set_trace()
     if response.status_code == 200:
         return response.json()
     else:

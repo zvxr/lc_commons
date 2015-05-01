@@ -10,7 +10,6 @@ from loans import Loan
 
 
 def execute():
-    # Logging.
     logger = logging.getLogger(__name__)
 
     # Get the raw loans and loan information.
@@ -37,17 +36,24 @@ def execute():
             logger.info("%s already exists." % asOfDate)
 
 
+def execute_with_delay(delay=None):
+    if delay == None:
+        delay = config.POLLING_INTERVAL
+
+    run_time = time.time()
+    execute()
+    remaining_time = delay - (time.time() - run_time)
+
+    if remaining_time > 0:
+        time.sleep(remaining_time)
+
+
 if __name__ == "__main__":
-    """When executing as a script, will run indefinitely. API requests and
-    subsequent writes to database are done with a minimum wait of seconds
-    defined through config.POLLING_INTERVAL.
+    """When executing as a script, will run indefinitely with default delay
+    between requests and database inserts. For full functionality, execute the
+    top level `run.py` instead.
     """
     log.setup_logging(config.LOG_PATH)
 
     while True:
-        run_time = time.time()
-        execute()
-        remaining_time = config.POLLING_INTERVAL - (time.time() - run_time)
-
-        if remaining_time > 0:
-            time.sleep(remaining_time)
+        execute_with_delay()
