@@ -1,6 +1,9 @@
+"""Script for running Lending Club Commons project by commandline.
+"""
 
 import argparse
 import config
+import logging
 import main.lc_commons
 import main.log
 
@@ -59,17 +62,30 @@ if __name__ == "__main__":
         help="The Lending Club API token when making requests.",
     )
 
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        help="Activates stream log. First flag will set to INFO, next to DEBUG."
+    )
+
     args = parser.parse_args()
 
-    # Echo arguments
-    print "database: %s" % args.database
-    print "delay: %s" % args.delay
-    print "log: %s" % args.log
-    print "number_requests: %s" % args.number_requests
-    print "token: %s" % args.token
-
-    if args.log:
-        main.log.setup_logging(args.log)
+    # Set-up logging based on verbosity.
+    if args.verbose > 1:
+        main.log.setup_logging(
+            stream=True,
+            logfile=args.log,
+            stream_level=logging.DEBUG
+        )
+    elif args.verbose == 1:
+        main.log.setup_logging(
+            stream=True,
+            logfile=args.log,
+            stream_level=logging.INFO
+        )
+    else:
+        main.log.setup_logging(stream=False, logfile=args.log)
 
     request_count = 0
 

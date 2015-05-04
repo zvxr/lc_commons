@@ -1,16 +1,18 @@
+"""Methods for pulling together sequential actions for polling API and recording
+successful response into database.
+"""
 
 import api
 import config
 import database
 import log
-import logging
 import time
 
 from loans import Loan
 
 
 def execute():
-    logger = logging.getLogger(__name__)
+    logger = log.get_logger(__name__)
 
     # Get the raw loans and loan information.
     response_json = api.get_listed_loans()

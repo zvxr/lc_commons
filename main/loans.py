@@ -1,10 +1,11 @@
+"""Includes loan entity class, and methods for validating and casting variables.
+"""
+
 import dateutil.parser
 import time
 
 from collections import OrderedDict
 
-"""Includes loan entity class, and methods for validating and casting variables.
-"""
 
 def _get_epoch(date_string):
     """Casts value (datestring) to unix timestamp. Nonetype is preserved."""

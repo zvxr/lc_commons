@@ -1,9 +1,9 @@
+"""Inclues database connection class, and methods for interacting with database.
+"""
 
 import config
 import sqlite3
 
-"""Inclues database connection class, and methods for interacting with database.
-"""
 
 def add_loans_funded_as_of_date(loans, db_conn):
     sql = """
@@ -50,7 +50,9 @@ def has_been_recorded(date_string, db_conn):
 
 class SqliteDatabase(object):
     """Manages a sqlite database connection.
-    May be used with the with statement.
+    May be used with the with statement. This only guarantees connection state
+    for instance. This will not prevent multiple database instances from
+    attempting to use connections simeotaneously (driver is not threadsafe).
     """
     def __init__(self):
         self._database = None
