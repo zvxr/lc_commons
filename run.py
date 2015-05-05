@@ -90,5 +90,5 @@ if __name__ == "__main__":
     request_count = 0
 
     while not args.number_requests or request_count < args.number_requests:
-        main.lc_commons.execute_with_delay(delay=args.delay)
+        main.lc_commons.execute_with_delay(delay=args.delay, token=args.token)
         request_count += 1

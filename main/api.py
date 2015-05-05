@@ -9,8 +9,9 @@ import requests
 _LOG_API_RESP = "API response [{0}]: {1}"
 
 
-def get_listed_loans(show_all=True):
+def get_listed_loans(token=None, show_all=True):
     """Fetches and returns dictionary JSON containing loan listings.
+    If token is not specified, will use config value.
     Logs error and returns NoneType if response is not 200.
     """
     # Logging.
@@ -19,7 +20,7 @@ def get_listed_loans(show_all=True):
     # Prepare and make request.
     url = config.API_URL + config.API_LOANS_URI
     headers = {
-        'Authorization': config.API_TOKEN,
+        'Authorization': token or config.API_TOKEN,
         'Content-type': "application/json"
     }
     params = {'showAll': show_all}

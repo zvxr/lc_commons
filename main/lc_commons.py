@@ -11,11 +11,11 @@ import time
 from loans import Loan
 
 
-def execute():
+def execute(token=None):
     logger = log.get_logger(__name__)
 
     # Get the raw loans and loan information.
-    response_json = api.get_listed_loans()
+    response_json = api.get_listed_loans(token=token)
 
     if not response_json:
         logger.warn("Aborting. No API response.")
@@ -38,12 +38,12 @@ def execute():
             logger.info("%s already exists." % asOfDate)
 
 
-def execute_with_delay(delay=None):
+def execute_with_delay(delay=None, token=None):
     if delay == None:
         delay = config.POLLING_INTERVAL
 
     run_time = time.time()
-    execute()
+    execute(token=token)
     remaining_time = delay - (time.time() - run_time)
 
     if remaining_time > 0:
