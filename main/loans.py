@@ -7,6 +7,8 @@ import time
 from collections import OrderedDict
 
 
+DAY_EPOCH = 60 * 60 * 24  # One day, in seconds.
+
 def _get_epoch(date_string):
     """Casts value (datestring) to unix timestamp. Nonetype is preserved."""
     if date_string:
@@ -29,9 +31,9 @@ def _get_str(value):
 
 
 class Loan(object):
-    """Loan instances are meant to reflect an individual loan.
-    It acts as a sanitation and transportation of LC API response data to
-    database.
+    """Loan instances are meant to reflect an individual loan as presented by
+    the LC API. It primarily acts as a sanitation and transportation from API
+    response data to database.
     """
     # Class attribute `attributes` is defined as an ordered dict.
     # This is meant to provide the blueprint for operations on Loan instances.
@@ -164,3 +166,78 @@ class Loan(object):
 
     def get_funded_tuple(self):
         return (self.asOfDate, self.fundedAmount, self.id)
+
+
+class LoanOverTime(Loan):
+    """LoanOverTime instances reflect an individual loan over time. It inherits
+    from `Loan` but includes a list of tuples which reflects a time and amount.
+    """
+
+    def __init__(self, logger=None):
+        self.loanTuples = []
+        self.logger = logger
+        self.values = {}
+
+    def load(*loans):
+        """Accepts any number of Loan instances recording their asOfDate and
+        fundedAmount. If it is the first loan, will also populate other fields.
+        If the asOfDate has already been recorded, will ignore with a warning.
+        If any loans beyond the first do not match the id recorded, will throw
+        an exception.
+        """
+        for loan in loans:
+            if type(loan) != Loan:
+                raise TypeError("method params must only be Loan instances.")
+
+            # If it is the first loan, set values of static fields.
+            if not self.id:
+                for key, type in Loan.attributes.iteritems():
+
+                    if key in ('asOfDate', 'fundedAmount'):
+                        continue
+
+                    self.values[key] = loan.values[key]
+
+            # Ignore if the date has already been recorded.
+            if loan.asOfDate not in self.dates:
+                if self.logger:
+                    self.logger.warn(
+                        "Skipping %s: has already been loaded." % loan.asOfDate
+                    )
+                continue
+
+            self._loanTuples.append((loan.asOfDate, loan.fundedAmount))
+
+    @property
+    def amounts(self):
+        return [lt[1] for lt in self._loanTuples]
+
+    @property
+    def amountStart(self):
+        return sorted(amounts)[0:1]
+
+    @property
+    def amountEnd(self):
+        return sorted(amounts)[-1:]
+
+    @property
+    def dates(self):
+        return [lt[0] for lt in self._loanTuples]
+
+    @property
+    def dateStart(self):
+        return sorted(dates)[0:1]
+
+    @property
+    def dateEnd(self):
+        return sorted(dates)[-1:]
+
+    def get_date_difference(self):
+        """Returns epoch difference between first and last loan date."""
+        if self.dates:
+            return _get_epoch(self.dateEnd) - _get_epoch(self.dateStart)
+
+    def get_funded_difference(self):
+        """Return integer difference between first and last amount."""
+        if self.amounts:
+            return self.amountEnd - self.amountStart
