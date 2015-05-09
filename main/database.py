@@ -5,6 +5,18 @@ import config
 import sqlite3
 
 
+def _dict_factory(cursor, row):
+    """This is for overriding a connection's `row_factory` so that cursor result
+    sets are dictionary format.
+    source:
+    http://docs.python.org/2/library/sqlite3.html#sqlite3.Connection.row_factory
+    """
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 def add_loans_funded_as_of_date(loans, db_conn):
     sql = """
         INSERT INTO loansFundedAsOfDate VALUES(?,?,?)
@@ -46,6 +58,15 @@ def has_been_recorded(date_string, db_conn):
     """
     params = (date_string,)
     return (db_conn.execute(sql, params, results='fetchone')[0] > 0)
+
+
+def get_loans(db_conn):
+    """Fetch all the loans."""
+    sql = """
+        SELECT *
+          FROM rawLoans
+    """
+    return db_conn.execute(sql, results='fetchall')
 
 
 class SqliteDatabase(object):
@@ -110,3 +131,7 @@ class SqliteDatabase(object):
             self.database.rollback()
             self.close()
             raise e
+
+    def set_row_factory(self, function=_dict_factory):
+        """Set the row factory to function passed. Defaults to dict factory."""
+        self.database.row_factory = function

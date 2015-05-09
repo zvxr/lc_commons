@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 DAY_EPOCH = 60 * 60 * 24  # One day, in seconds.
 
+
 def _get_epoch(date_string):
     """Casts value (datestring) to unix timestamp. Nonetype is preserved."""
     if date_string:
@@ -174,9 +175,18 @@ class LoanOverTime(Loan):
     """
 
     def __init__(self, logger=None):
-        self.loanTuples = []
+        self.__loanTuples = []
         self.logger = logger
         self.values = {}
+        self._reset_properties()
+
+    def _reset_properties(self):
+        """Sets all dynamic properties to None. This method is called internally
+        when instantiating or when methods are used to alter loans object is
+        tracking.
+        """
+        self._amounts = None
+        self._dates = None
 
     def load(*loans):
         """Accepts any number of Loan instances recording their asOfDate and
@@ -185,6 +195,8 @@ class LoanOverTime(Loan):
         If any loans beyond the first do not match the id recorded, will throw
         an exception.
         """
+        self._reset_properties()  # No longer valid. Lazy-loaded as needed.
+
         for loan in loans:
             if type(loan) != Loan:
                 raise TypeError("method params must only be Loan instances.")
@@ -206,38 +218,72 @@ class LoanOverTime(Loan):
                     )
                 continue
 
-            self._loanTuples.append((loan.asOfDate, loan.fundedAmount))
+            self.__loanTuples.append((loan.asOfDate, loan.fundedAmount))
 
     @property
     def amounts(self):
-        return [lt[1] for lt in self._loanTuples]
+        if self._amounts == None:
+            self._amounts = [lt[1] for lt in self.__loanTuples]
+        return self._amounts
 
     @property
     def amountStart(self):
-        return sorted(amounts)[0:1]
+        if self.amounts:
+            return sorted(amounts)[0]
 
     @property
     def amountEnd(self):
-        return sorted(amounts)[-1:]
+        if self.amounts:
+            return sorted(amounts)[-1]
+
+    @property
+    def amountLeft(self):
+        """Return integer difference between total and starting amount."""
+        if self.amounts:
+            return self.loanAmount - self.amountStart
 
     @property
     def dates(self):
-        return [lt[0] for lt in self._loanTuples]
+        if self._amounts == None:
+            self._amounts = [lt[0] for lt in self.__loanTuples]
+        return self._amounts
 
     @property
     def dateStart(self):
-        return sorted(dates)[0:1]
+        if self.dates:
+            return sorted(dates)[0]
 
     @property
-    def dateEnd(self):
-        return sorted(dates)[-1:]
-
-    def get_date_difference(self):
+    def dateDifference(self):
         """Returns epoch difference between first and last loan date."""
         if self.dates:
             return _get_epoch(self.dateEnd) - _get_epoch(self.dateStart)
 
-    def get_funded_difference(self):
-        """Return integer difference between first and last amount."""
+    @property
+    def dateEnd(self):
+        if self.dates:
+            return sorted(dates)[-1]
+
+    @property
+    def fundedRate(self):
+        """Returns rate in which amounts have been funded, as float."""
         if self.amounts:
-            return self.amountEnd - self.amountStart
+            if self.amountLeft != 0:
+                return self.amountEnd / float(self.amountLeft)
+            else:
+                return 0
+
+    @property
+    def loanAmount(self):
+        return self.values.get('loanAmount')
+
+    def get_daily_funding_score(self):
+        """Represents the rate in which the a loan was funded. It is then
+        mulitplied out by how much the timespan covered using a 24 hour period
+        as neutral (1).
+        """
+        dateDifference = self.dateDifference
+        if dateDifference:
+            return self.fundedRate * (DAY_EPOCH / dateDifference)
+        else:
+            return 0
