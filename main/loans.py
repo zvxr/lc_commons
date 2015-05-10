@@ -13,6 +13,8 @@ DAY_EPOCH = 60 * 60 * 24  # One day, in seconds.
 def _get_epoch(date_string):
     """Casts value (datestring) to unix timestamp. Nonetype is preserved."""
     if date_string:
+        if type(date_string) == int:
+            return date_string
         return int(time.mktime(dateutil.parser.parse(date_string).timetuple()))
 
 
@@ -135,12 +137,12 @@ class Loan(object):
         """
         self.values = {'asOfDate': asOfDate}
 
-        for key, type in Loan.attributes.iteritems():
+        for key, cast in Loan.attributes.iteritems():
 
             if key == 'asOfDate':
                 continue
 
-            self.values[key] = type(loan[key])
+            self.values[key] = cast(loan[key])
 
     def iteritems(self):
         for key in Loan.attributes:
@@ -188,7 +190,7 @@ class LoanOverTime(Loan):
         self._amounts = None
         self._dates = None
 
-    def load(*loans):
+    def load(self, *loans):
         """Accepts any number of Loan instances recording their asOfDate and
         fundedAmount. If it is the first loan, will also populate other fields.
         If the asOfDate has already been recorded, will ignore with a warning.
@@ -203,7 +205,7 @@ class LoanOverTime(Loan):
 
             # If it is the first loan, set values of static fields.
             if not self.id:
-                for key, type in Loan.attributes.iteritems():
+                for key in Loan.attributes.iterkeys():
 
                     if key in ('asOfDate', 'fundedAmount'):
                         continue
@@ -211,11 +213,12 @@ class LoanOverTime(Loan):
                     self.values[key] = loan.values[key]
 
             # Ignore if the date has already been recorded.
-            if loan.asOfDate not in self.dates:
+            if loan.asOfDate in self.dates:
                 if self.logger:
                     self.logger.warn(
                         "Skipping %s: has already been loaded." % loan.asOfDate
                     )
+                print "Skipping %s: has already been loaded." % loan.asOfDate ##
                 continue
 
             self.__loanTuples.append((loan.asOfDate, loan.fundedAmount))
@@ -229,12 +232,12 @@ class LoanOverTime(Loan):
     @property
     def amountStart(self):
         if self.amounts:
-            return sorted(amounts)[0]
+            return sorted(self.amounts)[0]
 
     @property
     def amountEnd(self):
         if self.amounts:
-            return sorted(amounts)[-1]
+            return sorted(self.amounts)[-1]
 
     @property
     def amountLeft(self):
@@ -244,14 +247,14 @@ class LoanOverTime(Loan):
 
     @property
     def dates(self):
-        if self._amounts == None:
-            self._amounts = [lt[0] for lt in self.__loanTuples]
-        return self._amounts
+        if self._dates == None:
+            self._dates = [lt[0] for lt in self.__loanTuples]
+        return self._dates
 
     @property
     def dateStart(self):
         if self.dates:
-            return sorted(dates)[0]
+            return sorted(self.dates)[0]
 
     @property
     def dateDifference(self):
@@ -262,14 +265,14 @@ class LoanOverTime(Loan):
     @property
     def dateEnd(self):
         if self.dates:
-            return sorted(dates)[-1]
+            return sorted(self.dates)[-1]
 
     @property
     def fundedRate(self):
         """Returns rate in which amounts have been funded, as float."""
         if self.amounts:
             if self.amountLeft != 0:
-                return self.amountEnd / float(self.amountLeft)
+                return self.amountEnd / float(self.loanAmount)
             else:
                 return 0
 

@@ -64,7 +64,8 @@ def get_loans(db_conn):
     """Fetch all the loans."""
     sql = """
         SELECT *
-          FROM rawLoans
+          FROM loansFundedAsOfDate
+         INNER JOIN rawLoans ON loansFundedAsOfDate.id = rawLoans.id
     """
     return db_conn.execute(sql, results='fetchall')
 
