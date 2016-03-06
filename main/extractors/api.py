@@ -1,14 +1,16 @@
-"""Includes methods for interacting with Lending Club API.
+"""Includes tasks for interacting with Lending Club API.
 """
 
-import config
-import log
+import lc_commons.config
+import lc_commons.log
+import lc_commons.main.celery_app
 import requests
 
 
 _LOG_API_RESP = "API response [{0}]: {1}"
 
 
+@lc_commons.main.celery_app.app.task(queue='lending_club_api')
 def get_listed_loans(token=None, show_all=True):
     """Fetches and returns dictionary JSON containing loan listings.
     If token is not specified, will use config value.

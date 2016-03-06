@@ -23,6 +23,36 @@ begins with collecting the data to be analyzed :).
 
 
 
-## Testing
+# Repository Layout
+```
+main/
+    celery_tasks/
+        app.py
+        tasks/
+        utils.py
+    extractors/
+    loaders/
+    transformers/
+        models/
+
+```
+
+## `celery_tasks/`
+This will include Celery application and configuration.
+
+## `extractors/`
+Modules responsible for pulling data from external sources.
+
+## `loaders/`
+Modules responsible for loading data repository.
+
+## `transformers/`
+Task methods responsible for fetching data from external sources.
+
+## `transformers/models/`
+Classes for representing data.
+
+
+# Testing
 When running tests as a script, to resolve pythonpath the `-m` switch must be used from top-level
 directory.
