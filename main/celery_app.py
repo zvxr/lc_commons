@@ -2,7 +2,7 @@
 """
 
 import kombu
-import lc_commons.config
+import lc_commons.config as lc_config
 
 from celery import Celery
 from celery.schedules import crontab
@@ -12,15 +12,15 @@ class CeleryConfiguration(object):
     """An object wrapper for celery configuration when calling `app.config_from_object`."""
 
     BROKER_URL = "amqp://%(user)s:%(password)s@%(host)s" % {
-        'user': lc_commons.config.RABBIT_USER,
-        'password': lc_commons.config.RABBIT_PASSWORD,
-        'host': lc_commons.config.RABBIT_HOST
+        'user': lc_config.RABBIT_USER,
+        'password': lc_config.RABBIT_PASSWORD,
+        'host': lc_config.RABBIT_HOST
     }
 
     CELERYBEAT_SCHEDULE = {
-        'daily_lending_club': {
-            'task': 'execute_daily',
-            'schedule': crontab(minute=0, hour=1)
+        'get_listed_loans_every_minute': {
+            'task': 'get_listed_loans',
+            'schedule': crontab(minute='*')
         },
     }
 
@@ -37,8 +37,8 @@ class CeleryConfiguration(object):
         ),
     )
 
-    CELERYD_CONCURRENCY = lc_commons.config.CELERY_WORKERS
-    CELERYD_PREFETCH_MULTIPLIER = lc_commons.config.CELERY_PREFETCH_MULTIPLIER
+    CELERYD_CONCURRENCY = lc_config.CELERY_WORKERS
+    CELERYD_PREFETCH_MULTIPLIER = lc_config.CELERY_PREFETCH_MULTIPLIER
 
     CELERY_IMPORTS = (
         'lc_commons.main.extractors.api',
