@@ -42,11 +42,8 @@ def get_logger(name):
 
 
 def setup_logging(
-        stream=True,
-        logfile=None,
-        stream_level=logging.INFO,
-        file_level=logging.ERROR
-    ):
+    stream=True, logfile=None, stream_level=logging.INFO, file_level=logging.ERROR
+):
     """Set-up format and verbosity.
     `stream` when True will turn on stream handler.
     `logfile` when passed (string path to log), file handler is activated.
@@ -60,7 +57,7 @@ def setup_logging(
         _ch = logging.StreamHandler()
         _ch.setLevel(stream_level)
         _ch.setFormatter(formatter)
-        logging.getLogger('').addHandler(_ch)
+        logging.getLogger("").addHandler(_ch)
 
     if logfile:
         _make_path(logfile)
@@ -69,4 +66,4 @@ def setup_logging(
         _fh = logging.FileHandler(logfile)
         _fh.setLevel(file_level)
         _fh.setFormatter(formatter)
-        logging.getLogger('').addHandler(_fh)
+        logging.getLogger("").addHandler(_fh)

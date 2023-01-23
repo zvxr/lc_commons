@@ -1,4 +1,3 @@
-
 import config
 import main.api
 import mock
@@ -11,7 +10,7 @@ class TestApiModuleMethods(unittest.TestCase):
     def setUp(self):
         pass
 
-    @mock.patch('requests.get')
+    @mock.patch("requests.get")
     def test_ok_response(self, requests_get_mock):
         response_mock = mock.Mock()
         response_mock.status_code = 200
@@ -19,8 +18,8 @@ class TestApiModuleMethods(unittest.TestCase):
         response_mock.json.return_value = response_json_mock
         requests_get_mock.return_value = response_mock
         expected_headers = {
-            'Authorization': config.API_TOKEN,
-            'Content-type': "application/json"
+            "Authorization": config.API_TOKEN,
+            "Content-type": "application/json",
         }
 
         # Test with default param.
@@ -28,7 +27,7 @@ class TestApiModuleMethods(unittest.TestCase):
         requests_get_mock.assert_called_with(
             config.API_URL + config.API_LOANS_URI,
             headers=expected_headers,
-            params={'showAll': True}
+            params={"showAll": True},
         )
         response_mock.json.assert_called_with()
         self.assertEqual(resp, response_json_mock)
@@ -38,13 +37,13 @@ class TestApiModuleMethods(unittest.TestCase):
         requests_get_mock.assert_called_with(
             config.API_URL + config.API_LOANS_URI,
             headers=expected_headers,
-            params={'showAll': False}
+            params={"showAll": False},
         )
         response_mock.json.assert_called_with()
         self.assertEqual(resp, response_json_mock)
 
-    @mock.patch('logging.getLogger')
-    @mock.patch('requests.get')
+    @mock.patch("logging.getLogger")
+    @mock.patch("requests.get")
     def test_error_response(self, requests_get_mock, logging_get_mock):
         response_mock = mock.Mock()
         response_mock.status_code = 403

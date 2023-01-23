@@ -12,9 +12,7 @@ def positive_int(param):
     """Validates and returns non-negative integer."""
     int_param = int(param)
     if int_param < 0:
-        raise argparse.ArgumentTypeError(
-            "%s must be a positive integer." % int_param
-        )
+        raise argparse.ArgumentTypeError("%s must be a positive integer." % int_param)
     return int_param
 
 
@@ -25,7 +23,7 @@ if __name__ == "__main__":
         "--database",
         "-d",
         default=config.DATABASE,
-        help="Path to the database to write to."
+        help="Path to the database to write to.",
     )
 
     parser.add_argument(
@@ -33,7 +31,7 @@ if __name__ == "__main__":
         "-s",
         default=config.POLLING_INTERVAL,
         help="The minimum amount of time before API requests.",
-        type=positive_int
+        type=positive_int,
     )
 
     parser.add_argument(
@@ -42,7 +40,7 @@ if __name__ == "__main__":
         const=config.LOG_PATH,
         default=False,
         help="Controls logging-- when specified writes to path provided.",
-        nargs='?'
+        nargs="?",
     )
 
     parser.add_argument(
@@ -52,7 +50,7 @@ if __name__ == "__main__":
         dest="number_requests",
         help="The number of requests to make. 0 will run indefinitely.",
         nargs="?",
-        type=positive_int
+        type=positive_int,
     )
 
     parser.add_argument(
@@ -66,7 +64,7 @@ if __name__ == "__main__":
         "--verbose",
         "-v",
         action="count",
-        help="Activates stream log. First flag will set to INFO, next to DEBUG."
+        help="Activates stream log. First flag will set to INFO, next to DEBUG.",
     )
 
     args = parser.parse_args()
@@ -74,16 +72,10 @@ if __name__ == "__main__":
     # Set-up logging based on verbosity.
     if args.verbose > 1:
         main.log.setup_logging(
-            stream=True,
-            logfile=args.log,
-            stream_level=logging.DEBUG
+            stream=True, logfile=args.log, stream_level=logging.DEBUG
         )
     elif args.verbose == 1:
-        main.log.setup_logging(
-            stream=True,
-            logfile=args.log,
-            stream_level=logging.INFO
-        )
+        main.log.setup_logging(stream=True, logfile=args.log, stream_level=logging.INFO)
     else:
         main.log.setup_logging(stream=False, logfile=args.log)
 

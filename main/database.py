@@ -57,7 +57,7 @@ def has_been_recorded(date_string, db_conn):
          WHERE asOfDate = (?)
     """
     params = (date_string,)
-    return (db_conn.execute(sql, params, results='fetchone')[0] > 0)
+    return db_conn.execute(sql, params, results="fetchone")[0] > 0
 
 
 def get_loans(db_conn):
@@ -67,7 +67,7 @@ def get_loans(db_conn):
           FROM loansFundedAsOfDate
          INNER JOIN rawLoans ON loansFundedAsOfDate.id = rawLoans.id
     """
-    return db_conn.execute(sql, results='fetchall')
+    return db_conn.execute(sql, results="fetchall")
 
 
 class SqliteDatabase(object):
@@ -76,6 +76,7 @@ class SqliteDatabase(object):
     for instance. This will not prevent multiple database instances from
     attempting to use connections simeotaneously (driver is not threadsafe).
     """
+
     def __init__(self):
         self._database = None
 

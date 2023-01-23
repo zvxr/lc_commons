@@ -20,10 +20,10 @@ def get_listed_loans(token=None, show_all=True):
     # Prepare and make request.
     url = config.API_URL + config.API_LOANS_URI
     headers = {
-        'Authorization': token or config.API_TOKEN,
-        'Content-type': "application/json"
+        "Authorization": token or config.API_TOKEN,
+        "Content-type": "application/json",
     }
-    params = {'showAll': show_all}
+    params = {"showAll": show_all}
     response = requests.get(url, headers=headers, params=params)
 
     if response.status_code == 200:

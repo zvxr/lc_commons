@@ -21,8 +21,8 @@ def execute(token=None):
         logger.warn("Aborting. No API response.")
         return
 
-    asOfDate = response_json['asOfDate']
-    loans = [Loan(asOfDate, loan) for loan in response_json['loans']]
+    asOfDate = response_json["asOfDate"]
+    loans = [Loan(asOfDate, loan) for loan in response_json["loans"]]
 
     # Port over to database.
     with database.SqliteDatabase() as db_conn:

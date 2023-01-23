@@ -1,4 +1,3 @@
-
 import config
 import main.database
 import mock
@@ -68,7 +67,7 @@ class TestDatabaseMethods(unittest.TestCase):
         call_kwargs = db_conn_mock.execute.call_args_list[0][1]
         self.assertIsInstance(call_args[0], str)
         self.assertEqual(call_args[1], (date_string_mock,))
-        self.assertEqual(call_kwargs, {'results': "fetchone"})
+        self.assertEqual(call_kwargs, {"results": "fetchone"})
         self.assertEqual(resp, True)
 
         # Test where has not been recorded.
@@ -83,7 +82,7 @@ class TestSqliteDatabaseClass(unittest.TestCase):
     def setUp(self):
         pass
 
-    @mock.patch('sqlite3.connect')
+    @mock.patch("sqlite3.connect")
     def test_database(self, sqlite_connect_mock):
         connection_mock = mock.Mock()
         sqlite_connect_mock.return_value = connection_mock
@@ -94,7 +93,7 @@ class TestSqliteDatabaseClass(unittest.TestCase):
         self.assertEqual(db_conn, connection_mock)
         sqlite_connect_mock.assert_called_with(config.DATABASE)
 
-    @mock.patch('main.database.SqliteDatabase.close')
+    @mock.patch("main.database.SqliteDatabase.close")
     def test_with_statement(self, db_close_mock):
         with main.database.SqliteDatabase() as db_conn:
             self.assertFalse(db_close_mock.called)
@@ -108,7 +107,7 @@ class TestSqliteDatabaseClass(unittest.TestCase):
         self.assertTrue(db_conn_mock.close.called)
         self.assertEqual(db._database, None)
 
-    @mock.patch('sqlite3.connect')
+    @mock.patch("sqlite3.connect")
     def test_execute(self, sqlite_connect_mock):
         # Go through property for database.
         # Set-up cursor as a mock as well.
